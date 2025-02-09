@@ -44,7 +44,7 @@
     <script>
         async function fetchData() {
             try {
-                let response = await fetch('http://localhost:3000/getReviews'); // API call
+                let response = await fetch('http://localhost:5000/getReviews'); // API call
                 let data = await response.json();
 
                 let container = document.getElementById('data-container');
