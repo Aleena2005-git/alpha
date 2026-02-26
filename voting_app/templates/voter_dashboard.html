@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Voter Dashboard - BlockVote</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:'Cormorant Garamond',serif}
+        body{background:#eef2f6;color:#0f172a}
+        .navbar{
+            height:64px;display:flex;justify-content:space-between;align-items:center;
+            padding:0 44px;background:#fff;border-bottom:1px solid #dbe3ed;
+        }
+        .logo{font-size:34px;font-weight:700;letter-spacing:.3px}
+        .nav-links{display:flex;gap:14px;align-items:center}
+        .nav-links a{
+            text-decoration:none;color:#0f172a;font-size:23px;font-weight:600;padding:4px 8px;border-radius:8px;
+        }
+        .nav-links a:hover{background:#e2e8f0}
+        .page{padding:28px 44px}
+        .card{
+            max-width:900px;margin:0 auto;background:#fff;border:1px solid #ced8e5;border-radius:12px;
+            box-shadow:0 2px 7px rgba(16,24,40,.06);padding:26px;
+        }
+        h1{font-size:44px;font-weight:700;margin-bottom:8px}
+        .subtitle{font-size:24px;color:#475569;margin-bottom:20px}
+        .election-list{display:grid;gap:12px}
+        .election-link{
+            display:block;text-decoration:none;color:#0f172a;background:#f8fafc;border:1px solid #d2dbe8;
+            border-radius:10px;padding:16px 18px;font-size:30px;font-weight:600;
+        }
+        .election-link:hover{background:#eef4fc;border-color:#0b5cad}
+        .empty{font-size:24px;color:#64748b}
+        @media(max-width:980px){
+            .navbar{padding:0 16px}
+            .page{padding:16px}
+            .logo{font-size:28px}
+            .nav-links a{font-size:20px}
+            h1{font-size:34px}
+            .subtitle{font-size:20px}
+            .election-link{font-size:26px}
+        }
+    </style>
+</head>
+<body>
+{% if request.session.show_navbar or request.session.wallet %}
+<div class="navbar">
+    <div class="logo">BlockVote</div>
+    <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/register/">Voter</a>
+        <a href="/results/">Results</a>
+        {% if request.session.wallet %}
+            <a href="{% url 'voter_logout' %}">Logout</a>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<div class="page">
+    <div class="card">
+        <h1>Welcome, {{ voter.wallet_address|slice:":10" }}...</h1>
+        <p class="subtitle">Active Elections</p>
+
+        {% if active_elections %}
+            <div class="election-list">
+                {% for election in active_elections %}
+                    <a class="election-link" href="{% url 'view_election' election.id %}">{{ election.name }}</a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="empty">No active elections right now.</p>
+        {% endif %}
+    </div>
+</div>
+</body>
+</html>
+

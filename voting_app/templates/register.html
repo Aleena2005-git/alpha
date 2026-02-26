@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Voter Registration - BlockVote</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cormorant Garamond',serif;
+        }
+
+        body {
+            background: #f5f7fa;
+        }
+
+        /* NAVBAR */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 60px;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-weight: 700;
+            font-size: 20px;
+        }
+
+        .logo-box {
+            background: #2563eb;
+            color: white;
+            padding: 8px 10px;
+            border-radius: 8px;
+            margin-right: 10px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #1e293b;
+            margin-left: 25px;
+            font-weight: 500;
+        }
+
+        /* HERO SECTION */
+        .hero {
+            margin: 60px;
+            background: linear-gradient(135deg, #dbeafe, #e0f2fe);
+            padding: 80px 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .card {
+            background: white;
+            width: 400px;
+            margin: 30px auto;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        }
+
+        h2 {
+            margin-bottom: 15px;
+            color: #0f172a;
+        }
+
+        p {
+            color: #475569;
+            margin-bottom: 25px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        /* Stacked buttons */
+        .stack-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: stretch;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+        .btn-primary:hover { background: #1d4ed8; }
+
+        .btn-secondary {
+            background: #64748b;
+            color: white;
+            display: block;
+            width: 100%;
+            padding: 12px;
+            text-align: center;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+        .btn-secondary:hover { background: #475569; }
+
+        .btn-dashboard {
+            background: #10b981;
+            color: white;
+            display: block;
+            width: 100%;
+            padding: 12px;
+            text-align: center;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+        .btn-dashboard:hover { background: #059669; }
+
+        .no-decoration { text-decoration: none; display:block; }
+
+        .wallet-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin-bottom: 12px;
+            text-align: left;
+        }
+
+        .wallet-text {
+            color: #0f172a;
+            font-size: 14px;
+            word-break: break-all;
+            flex: 1;
+        }
+
+        .copy-btn {
+            border: none;
+            background: #e2e8f0;
+            border-radius: 6px;
+            padding: 8px 10px;
+            cursor: pointer;
+            width: auto;
+            color: #0f172a;
+            font-size: 16px;
+            line-height: 1;
+        }
+
+        .copy-btn:hover {
+            background: #cbd5e1;
+        }
+
+        @media(max-width: 768px){
+            .navbar{
+                padding: 15px 20px;
+            }
+            .hero{
+                margin: 20px;
+                padding: 60px 20px;
+            }
+            .card{
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+{% if request.session.show_navbar or request.session.wallet %}
+<div class="navbar">
+    <div class="logo">
+        <div class="logo-box">✔</div>
+        BlockVote
+    </div>
+
+    <div class="nav-links">
+        {% if request.session.wallet %}
+            <a href="/">Home</a>
+            <a href="/register/">Voter</a>
+            <a href="/results/">Results</a>
+            <a href="{% url 'voter_logout' %}">Logout</a>
+        {% else %}
+            <a href="/">Home</a>
+            <a href="/register/">Voter</a>
+            <a href="/results/">Results</a>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<!-- HERO SECTION -->
+<div class="hero">
+
+    <div class="card">
+        <h2>Register as Voter</h2>
+        <p>
+            Generate your secure blockchain wallet to participate
+            in the election process.
+        </p>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            {% if registered %}
+                <p style="color:green; margin-bottom:10px;">Registration successful. Your wallet:</p>
+                <div class="wallet-box">
+                    <div id="walletAddress" class="wallet-text">{{ wallet }}</div>
+                    <button type="button" class="copy-btn" onclick="copyWallet()" title="Copy wallet address">📋</button>
+                </div>
+                <p id="copyMessage" style="display:none; color:#16a34a; margin-bottom:12px; font-size:13px;">Wallet copied.</p>
+            {% endif %}
+
+            <div class="stack-buttons">
+                <button type="submit" class="btn-primary">Generate Wallet &amp; Register</button>
+                <a href="{% url 'voter_login' %}" class="no-decoration btn-secondary">Login</a>
+
+                {% if request.session.wallet %}
+                    <a href="{% url 'voter_dashboard' %}" class="no-decoration btn-dashboard">Go to Dashboard</a>
+                {% else %}
+                    <a href="{% url 'voter_login' %}" class="no-decoration btn-dashboard">Go to Dashboard</a>
+                {% endif %}
+            </div>
+
+        </form>
+    </div>
+
+</div>
+
+<script>
+    function copyWallet() {
+        const walletEl = document.getElementById('walletAddress');
+        const copyMessage = document.getElementById('copyMessage');
+        if (!walletEl) return;
+
+        const wallet = walletEl.textContent.trim();
+        navigator.clipboard.writeText(wallet).then(function () {
+            if (copyMessage) {
+                copyMessage.style.display = 'block';
+            }
+        });
+    }
+</script>
+
+</body>
+</html>
+

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Results - BlockVote</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:'Cormorant Garamond',serif}
+        body{background:#eef2f6;color:#0f172a}
+        .navbar{
+            height:64px;display:flex;justify-content:flex-end;align-items:center;
+            padding:0 44px;background:#fff;border-bottom:1px solid #dbe3ed
+        }
+        .navbar a{
+            text-decoration:none;color:#0f172a;font-size:20px;font-weight:600;padding:4px 10px;border-radius:8px
+        }
+        .navbar a:hover{background:#e2e8f0}
+        .page{padding:24px 44px}
+        .shell{
+            background:#e9eef5;border:1px solid #ced8e5;border-radius:12px;padding:22px;
+        }
+        .headline{text-align:center;padding:8px 0 22px}
+        .head-icon{
+            width:48px;height:48px;border-radius:999px;background:#0b5cad;color:#fff;
+            display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:22px
+        }
+        .headline h1{font-size:54px;font-weight:700;line-height:1.05}
+        .headline p{font-size:24px;color:#475569}
+        .card{
+            background:#fff;border:1px solid #ced8e5;border-radius:12px;
+            box-shadow:0 2px 7px rgba(16,24,40,.06);padding:16px
+        }
+        .filter-card{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:16px}
+        .field-label{font-size:18px;font-weight:700;margin-bottom:6px}
+        .filter-select{
+            width:300px;max-width:100%;height:40px;border:1px solid #c8d4e4;border-radius:8px;
+            padding:0 10px;background:#f8fafc;font-size:18px
+        }
+        .badge{
+            background:#0b5cad;color:#fff;border-radius:999px;padding:4px 10px;
+            font-size:14px;font-weight:600;text-transform:lowercase
+        }
+        .stat-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:16px}
+        .stat-label{font-size:18px;font-weight:700;color:#334155}
+        .stat-value{font-size:40px;font-weight:700;margin-top:8px}
+        .split-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+        .section-title{font-size:34px;font-weight:700;line-height:1.1}
+        .section-subtitle{font-size:20px;color:#64748b;margin-bottom:10px}
+        .candidate-row{margin-bottom:10px}
+        .candidate-top{
+            display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:4px
+        }
+        .candidate-name{font-size:30px;font-weight:700}
+        .candidate-meta{font-size:20px;color:#64748b}
+        .candidate-score{font-size:22px;font-weight:700}
+        .bar-track{height:8px;background:#d7e2f0;border-radius:999px;overflow:hidden}
+        .bar-fill{height:100%;background:#0b5cad}
+        .bar-fill.top{background:#059669}
+        table{width:100%;border-collapse:collapse}
+        th,td{padding:10px 8px;text-align:left;border-bottom:1px solid #e2e8f0}
+        th{font-size:16px;color:#475569;font-weight:700}
+        td{font-size:20px}
+        .table-rank{font-weight:700;color:#0b5cad}
+        .table-votes{font-weight:700}
+        .empty{font-size:24px;color:#64748b}
+        @media(max-width: 980px){
+            .navbar{padding:0 16px}
+            .page{padding:16px}
+            .headline h1{font-size:40px}
+            .headline p{font-size:20px}
+            .filter-card{flex-direction:column;align-items:flex-start}
+            .stat-grid{grid-template-columns:1fr}
+            .split-grid{grid-template-columns:1fr}
+        }
+    </style>
+</head>
+<body>
+<div class="navbar">
+    <a href="/">Home</a>
+</div>
+<div class="page">
+    <div class="shell">
+        <div class="headline">
+            <div class="head-icon">&#9776;</div>
+            <h1>Election Results</h1>
+            <p>Live vote summary from the Block table</p>
+        </div>
+
+        <div class="card filter-card">
+            <form method="get">
+                <div class="field-label">Select Election</div>
+                <select name="election" class="filter-select" onchange="this.form.submit()">
+                    {% for election in elections %}
+                        <option value="{{ election.id }}" {% if selected_election and selected_election.id == election.id %}selected{% endif %}>
+                            {{ election.name }}
+                        </option>
+                    {% empty %}
+                        <option value="">No elections found</option>
+                    {% endfor %}
+                </select>
+            </form>
+            {% if selected_election %}
+                <span class="badge">{% if selected_election.is_active %}active{% else %}inactive{% endif %}</span>
+            {% endif %}
+        </div>
+
+        <div class="stat-grid">
+            <div class="card">
+                <div class="stat-label">Total Votes</div>
+                <div class="stat-value">{{ total_votes }}</div>
+            </div>
+            <div class="card">
+                <div class="stat-label">Candidates</div>
+                <div class="stat-value">{{ candidate_count }}</div>
+            </div>
+            <div class="card">
+                <div class="stat-label">Leading Candidate</div>
+                <div class="stat-value">
+                    {% if leading_candidate %}{{ leading_candidate.candidate__name }}{% else %}-{% endif %}
+                </div>
+            </div>
+        </div>
+
+        {% if results %}
+        <div class="split-grid">
+            <div class="card">
+                <div class="section-title">Vote Distribution</div>
+                <div class="section-subtitle">Visual breakdown by candidate</div>
+                {% for row in distribution %}
+                    <div class="candidate-row">
+                        <div class="candidate-top">
+                            <div>
+                                <div class="candidate-name">
+                                    {% if forloop.first %}<span style="color:#f59e0b">&#9733;</span>{% endif %}
+                                    {{ row.candidate__name }}
+                                </div>
+                                <div class="candidate-meta">{{ row.candidate__post__name }}</div>
+                            </div>
+                            <div class="candidate-score">{{ row.total_votes }} ({{ row.percentage }}%)</div>
+                        </div>
+                        <div class="bar-track">
+                            <div class="bar-fill {% if forloop.first %}top{% endif %}" style="width:{{ row.percentage }}%;"></div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="card">
+                <div class="section-title">Detailed Results</div>
+                <div class="section-subtitle">Ranked by post and vote count</div>
+                <table>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Candidate</th>
+                        <th>Post</th>
+                        <th>Votes</th>
+                        <th>%</th>
+                    </tr>
+                    {% for result in results %}
+                    <tr>
+                        <td class="table-rank">{{ result.rank }}</td>
+                        <td>
+                            {{ result.candidate__name }}<br>
+                            <span style="font-size:16px;color:#64748b">
+                                {{ result.candidate__department|default:"N/A" }}{% if result.candidate__semester %}, Sem {{ result.candidate__semester }}{% endif %}
+                            </span>
+                        </td>
+                        <td>{{ result.candidate__post__name }}</td>
+                        <td class="table-votes">{{ result.total_votes }}</td>
+                        <td>{{ result.percentage }}%</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+        {% else %}
+            <div class="card">
+                <p class="empty">No votes cast yet.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+</body>
+</html>

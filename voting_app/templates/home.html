@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>BlockVote</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:'Cormorant Garamond',serif}
+        body{background:#e9eef5;color:#0f172a;overflow-x:hidden}
+        body.splash-lock{overflow:hidden}
+        .splash{
+            position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;
+            background:#fff;transition:opacity .22s ease, visibility .22s ease;
+        }
+        .splash.hide{opacity:0;visibility:hidden}
+        .splash-stack{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+        .splash-logo{
+            width:60px;height:60px;border-radius:12px;background:#0b5cad;color:#fff;
+            display:flex;align-items:center;justify-content:center;
+            font-size:36px;font-weight:700;line-height:1;
+            box-shadow:0 10px 24px rgba(11,92,173,.24);
+        }
+        .dot-loader{display:flex;align-items:center;gap:10px}
+        .dot{
+            width:12px;height:12px;border-radius:999px;background:#0b5cad;
+            animation:dotDance .7s ease-in-out infinite;
+        }
+        .dot:nth-child(2){animation-delay:.12s}
+        .dot:nth-child(3){animation-delay:.24s}
+        @keyframes dotDance{
+            0%,80%,100%{transform:translateY(0) scale(1);opacity:.75}
+            40%{transform:translateY(-10px) scale(1.08);opacity:1}
+        }
+        .site-content{
+            opacity:0;transform:none;
+            transition:opacity .28s ease;
+        }
+        .site-content.show{opacity:1}
+        .ambient{
+            position:fixed;inset:0;pointer-events:none;z-index:0;
+            background:
+                radial-gradient(circle at 15% 20%, rgba(11,92,173,.14), transparent 34%),
+                radial-gradient(circle at 85% 15%, rgba(25,118,210,.1), transparent 32%),
+                radial-gradient(circle at 70% 80%, rgba(99,102,241,.08), transparent 38%),
+                linear-gradient(180deg, #edf2f8 0%, #e7edf5 100%);
+        }
+        .navbar{
+            height:64px;display:flex;justify-content:space-between;align-items:center;
+            padding:0 44px;background:#fff;border-bottom:1px solid #dbe3ed;
+            position:relative;z-index:2;
+        }
+        .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:28px}
+        .brand-mark{
+            width:28px;height:28px;border-radius:7px;background:#0b5cad;color:#fff;
+            display:flex;align-items:center;justify-content:center;font-size:15px;
+        }
+        .nav-links{display:flex;gap:12px;align-items:center}
+        .nav-links a{
+            text-decoration:none;color:#0f172a;font-size:24px;font-weight:600;padding:4px 8px;border-radius:8px;
+        }
+        .nav-links a:hover{background:#e2e8f0}
+        .page{padding:28px 44px;position:relative;z-index:2}
+        .hero{
+            background:linear-gradient(135deg, rgba(255,255,255,.86), rgba(255,255,255,.72));
+            border:1px solid rgba(206,216,229,.9);border-radius:12px;box-shadow:0 20px 45px rgba(16,24,40,.12);
+            backdrop-filter:blur(10px);
+            padding:54px 28px;text-align:center;
+        }
+        .badge{
+            display:inline-block;background:#eef4fc;color:#0b5cad;border:1px solid #bcd2ee;border-radius:999px;
+            padding:6px 14px;font-size:18px;font-weight:600;margin-bottom:16px;
+        }
+        h1{font-size:56px;font-weight:700;line-height:1.08;margin-bottom:14px}
+        h1 span{color:#0b5cad}
+        p{max-width:780px;margin:0 auto;color:#334155;font-size:30px;line-height:1.4}
+        .buttons{margin-top:28px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+        .btn{
+            display:inline-block;padding:12px 20px;border-radius:10px;text-decoration:none;
+            font-size:26px;font-weight:600;border:1px solid transparent;
+        }
+        .btn-primary{background:#0b5cad;color:#fff}
+        .btn-primary:hover{background:#0a4d92}
+        .btn-secondary{background:#fff;color:#0f172a;border-color:#c4cfdd}
+        .btn-secondary:hover{background:#f8fafc}
+        .benefits{
+            margin-top:16px;
+            display:grid;
+            grid-template-columns:repeat(4,minmax(0,1fr));
+            gap:14px;
+        }
+        .benefit-card{
+            background:linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.78));
+            border:1px solid rgba(206,216,229,.9);border-radius:12px;
+            box-shadow:0 10px 25px rgba(16,24,40,.10);padding:18px;
+            backdrop-filter:blur(8px);
+        }
+        .benefit-card h3{font-size:30px;margin-bottom:8px;color:#0b5cad}
+        .benefit-card p{
+            max-width:none;margin:0;color:#334155;font-size:22px;line-height:1.35;text-align:left;
+        }
+        @media(max-width:980px){
+            .navbar{padding:0 16px}
+            .page{padding:16px}
+            .brand{font-size:22px}
+            .nav-links a{font-size:19px}
+            h1{font-size:38px}
+            p{font-size:24px}
+            .btn{font-size:22px}
+            .benefits{grid-template-columns:1fr}
+            .benefit-card h3{font-size:28px}
+            .benefit-card p{font-size:21px}
+        }
+    </style>
+</head>
+<body class="splash-lock">
+<div id="splash" class="splash">
+    <div class="splash-stack" aria-label="Loading">
+        <div class="splash-logo">&#10003;</div>
+        <div class="dot-loader">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+        </div>
+    </div>
+</div>
+
+<div id="siteContent" class="site-content">
+<div class="ambient"></div>
+<div class="navbar">
+    <div class="brand"><div class="brand-mark">&#10003;</div><div>BlockVote</div></div>
+    <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/results/">Results</a>
+    </div>
+</div>
+
+<div class="page">
+    <div class="hero">
+        <div class="badge">Powered by Blockchain Technology</div>
+        <h1>Online Voting System <br><span>Using Blockchain</span></h1>
+        <p>
+            A secure transparent and tamper-proof voting platform designed
+            for modern democratic processes
+        </p>
+        <div class="buttons">
+            <a href="/admin-dashboard/" class="btn btn-primary">Admin Login</a>
+            <a href="/register/" class="btn btn-secondary">Voter Login</a>
+        </div>
+    </div>
+
+    <div class="benefits">
+        <div class="benefit-card">
+            <h3>Secure Ballots</h3>
+            <p>Blockchain-backed storage helps protect each vote from tampering and unauthorized edits.</p>
+        </div>
+        <div class="benefit-card">
+            <h3>Transparent Process</h3>
+            <p>All vote transactions are auditable, improving clarity and confidence in election outcomes.</p>
+        </div>
+        <div class="benefit-card">
+            <h3>Faster Elections</h3>
+            <p>Digital workflow reduces manual handling and speeds up registration, voting, and counting.</p>
+        </div>
+        <div class="benefit-card">
+            <h3>Trusted Results</h3>
+            <p>Automated tallying with immutable records minimizes disputes and strengthens credibility.</p>
+        </div>
+    </div>
+</div>
+</div>
+
+<script>
+    (function () {
+        const splash = document.getElementById("splash");
+        const siteContent = document.getElementById("siteContent");
+        let done = false;
+
+        function finishSplash() {
+            if (done) return;
+            done = true;
+            if (splash) splash.classList.add("hide");
+            if (siteContent) siteContent.classList.add("show");
+            document.body.classList.remove("splash-lock");
+        }
+
+        if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", function () {
+                setTimeout(finishSplash, 1000);
+            }, { once: true });
+        } else {
+            setTimeout(finishSplash, 1000);
+        }
+    })();
+</script>
+</body>
+</html>

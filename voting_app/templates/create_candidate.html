@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Candidate - BlockVote</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cormorant Garamond',serif;
+        }
+
+        body {
+            background: #f5f7fa;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 60px;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-weight: 700;
+            font-size: 20px;
+        }
+
+        .logo-box {
+            background: #2563eb;
+            color: white;
+            padding: 8px 10px;
+            border-radius: 8px;
+            margin-right: 10px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #1e293b;
+            margin-left: 25px;
+            font-weight: 500;
+        }
+
+        .container {
+            margin: 60px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .card {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            width: 450px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+
+        h2 {
+            margin-bottom: 25px;
+            color: #0f172a;
+            text-align: center;
+        }
+
+        label {
+            font-weight: 600;
+            color: #334155;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            border-color: #2563eb;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #1e40af;
+        }
+
+        @media(max-width: 768px){
+            .navbar{
+                padding: 15px 20px;
+            }
+            .container{
+                margin: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+{% if request.session.show_navbar or request.session.wallet %}
+<div class="navbar">
+    <div class="logo">
+        <div class="logo-box">✔</div>
+        BlockVote
+    </div>
+
+    <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/admin-dashboard/">Dashboard</a>
+        <a href="/create-post/">Create Post</a>
+    </div>
+</div>
+{% endif %}
+
+<div class="container">
+    <div class="card">
+        <h2>Add Candidate</h2>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <label>Candidate Name</label>
+            <input type="text" name="candidate_name" placeholder="Enter candidate name" required>
+            <label>Select Post</label>
+            <select name="post_id" required>
+                {% for post in posts %}
+                    <option value="{{ post.id }}">
+                        {{ post.name }} - {{ post.election.name }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <label>Department</label>
+            <select name="department" required>
+                <option value="">Select department</option>
+                <option value="CSE">CSE</option>
+                <option value="ME">ME</option>
+                <option value="CV">CV</option>
+                <option value="EC1">EC1</option>
+                <option value="EC2">EC2</option>
+            </select>
+
+            <label>Semester</label>
+            <select name="semester" required>
+                <option value="">Select semester</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+            </select>
+
+            <button type="submit">Add Candidate</button>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>
+

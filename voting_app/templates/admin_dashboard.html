@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard - BlockVote</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:'Cormorant Garamond',serif}
+        body{background:#eef2f6;color:#0f172a}
+        .navbar{height:64px;display:flex;justify-content:space-between;align-items:center;padding:0 44px;background:#fff;border-bottom:1px solid #dbe3ed}
+        .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:28px}
+        .brand-mark{width:28px;height:28px;border-radius:7px;background:#0b5cad;color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px}
+        .nav-links{display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+        .nav-links a{text-decoration:none;color:#0f172a;font-size:14px;font-weight:500;padding:6px 10px;border-radius:8px}
+        .nav-links a:hover{background:#e2e8f0}
+        .page{padding:24px 44px}
+        .grid{display:grid;gap:16px}
+        .card{background:#fff;border:1px solid #ced8e5;border-radius:12px;box-shadow:0 2px 7px rgba(16,24,40,.06);padding:20px}
+        .section-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+        h2{font-size:24px}
+        .btn{display:inline-block;text-decoration:none;border:none;border-radius:8px;padding:10px 14px;font-weight:600;cursor:pointer}
+        .btn-primary{background:#0b5cad;color:#fff}
+        .btn-primary:hover{background:#0a4d92}
+        .btn-success{background:#059669;color:#fff}
+        .btn-success:hover{background:#047857}
+        .btn-warn{background:#dc2626;color:#fff}
+        .btn-warn:hover{background:#b91c1c}
+        table{width:100%;border-collapse:collapse}
+        th,td{padding:12px;text-align:left;border-bottom:1px solid #e2e8f0}
+        th{font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:#475569;background:#f8fafc}
+        .badge{display:inline-block;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:700}
+        .badge.active{background:#dcfce7;color:#166534}
+        .badge.inactive{background:#fee2e2;color:#991b1b}
+        @media(max-width: 980px){.navbar{padding:0 16px}.page{padding:16px}h2{font-size:20px}}
+    </style>
+</head>
+<body>
+{% if request.session.show_navbar or request.session.wallet %}
+<div class="navbar">
+    <div class="brand"><div class="brand-mark">&#10003;</div><div>BlockVote</div></div>
+    <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/admin-dashboard/">Admin</a>
+        <a href="/create-election/">Create Election</a>
+        <a href="/create-post/">Create Post</a>
+        <a href="/create-candidate/">Create Candidate</a>
+        <a href="/blockchain/">Blockchain</a>
+        <a href="/admin-logout/">Logout</a>
+    </div>
+</div>
+{% endif %}
+<div class="page">
+    <div class="grid">
+        <div class="card">
+            <div class="section-title">
+                <h2>Elections</h2>
+                <a href="/create-election/" class="btn btn-primary">+ New Election</a>
+            </div>
+            <table>
+                <tr><th>Election</th><th>Status</th><th>Action</th></tr>
+                {% for election in elections %}
+                <tr>
+                    <td>{{ election.name }}</td>
+                    <td>{% if election.is_active %}<span class="badge active">Active</span>{% else %}<span class="badge inactive">Inactive</span>{% endif %}</td>
+                    <td>
+                        <a href="{% url 'toggle_election' election.id %}" class="btn {% if election.is_active %}btn-warn{% else %}btn-success{% endif %}">{% if election.is_active %}Deactivate{% else %}Activate{% endif %}</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="3">No elections created.</td></tr>
+                {% endfor %}
+            </table>
+        </div>
+        <div class="card">
+            <div class="section-title"><h2>Registered Voters</h2></div>
+            <table>
+                <tr><th>Wallet Address</th><th>Status</th><th>Action</th></tr>
+                {% for voter in voters %}
+                <tr>
+                    <td style="word-break:break-all">{{ voter.wallet_address }}</td>
+                    <td>{% if voter.approved %}<span class="badge active">Approved</span>{% else %}<span class="badge inactive">Pending</span>{% endif %}</td>
+                    <td>
+                        {% if not voter.approved %}
+                            <a href="{% url 'approve_voter' voter.id %}" class="btn btn-success">Approve</a>
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="3">No voters registered.</td></tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+
+
